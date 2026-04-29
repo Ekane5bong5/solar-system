@@ -8,9 +8,9 @@ on:
       - 'feature/*'
 
 env:
-      MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
-      MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
-      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+  MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
+  MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
+  MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
 
 jobs:
   unit-testing:
@@ -20,9 +20,9 @@ jobs:
         nodejs_version: [18, 19, 20]
         operating_system: [ubuntu-latest, macos-latest]
         exclude:
-        - nodejs_version: 18
-          operating_system: macos-latest
-    runs-on: ${{matrix.operating_system}}
+          - nodejs_version: 18
+            operating_system: macos-latest
+    runs-on: ${{ matrix.operating_system }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v3
         with:
-          node-version: ${{matrix.operating_system}}
+          node-version: ${{ matrix.nodejs_version }}
           cache: 'npm'
 
       - name: Install Dependencies
@@ -42,5 +42,5 @@ jobs:
       - name: Archive Test Result
         uses: actions/upload-artifact@v4
         with:
-          name: Mocha-Test-Result
+          name: Mocha-Test-Result-${{ matrix.nodejs_version }}-${{ matrix.operating_system }}
           path: test-results.xml
