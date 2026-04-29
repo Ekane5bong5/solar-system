@@ -52,7 +52,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 18
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -62,9 +62,6 @@ jobs:
 
       - name: Check Code Coverage
         continue-on-error: true
-        run: npm run coverage
-
-      - name: Generate Coverage Report
         run: npm run coverage
 
       - name: Archive Coverage Report
