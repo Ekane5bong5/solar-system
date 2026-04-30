@@ -85,6 +85,8 @@ jobs:
   docker:
     name: Containerization
     needs: [unit-testing, code-coverage]
+    permissions:
+        packages: write
     runs-on: ubuntu-latest
     env:
       REPO_OWNER: ${{ github.repository_owner }}
