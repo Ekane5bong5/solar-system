@@ -15,11 +15,20 @@ env:
 jobs:
   unit-testing:
     name: Unit Testing
-    runs-on: ${{ matrix.operating_system }}
+    runs-on: ubuntu-latest
+    env:
+      MONGO_URI: 'mongodb://localhost:27017/superData'
+      MONGO_USERNAME: non-prod-user
+      MONGO_PASSWORD: non-prod-password
+    services:
+      mongo-db:
+        image: siddharth67/mongo-db:non-prod
+        ports:
+          - 27017:27017
     strategy:
       matrix:
         nodejs_version: [18, 20]
-        operating_system: [ubuntu-latest, macos-latest]
+        operating_system: [ubuntu-latest]
         exclude:
           - nodejs_version: 18
             operating_system: macos-latest
@@ -54,6 +63,15 @@ jobs:
   code-coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
+    env:
+      MONGO_URI: 'mongodb://localhost:27017/superData'
+      MONGO_USERNAME: non-prod-user
+      MONGO_PASSWORD: non-prod-password
+    services:
+      mongo-db:
+        image: siddharth67/mongo-db:non-prod
+        ports:
+          - 27017:27017
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -86,10 +104,8 @@ jobs:
     name: Containerization
     needs: [unit-testing, code-coverage]
     permissions:
-        packages: write
+      packages: write
     runs-on: ubuntu-latest
-    env:
-      REPO_OWNER: ${{ github.repository_owner }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -99,7 +115,6 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          
 
       - name: GHCR Login
         uses: docker/login-action@v2.2.0
@@ -116,6 +131,10 @@ jobs:
           tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
 
       - name: Test Docker image
+        env:
+          MONGO_URI: 'mongodb://localhost:27017/superData'
+          MONGO_USERNAME: non-prod-user
+          MONGO_PASSWORD: non-prod-password
         run: |
           docker images
           docker run --name solar-system-app -d \
@@ -133,8 +152,8 @@ jobs:
       - name: Push to registries
         uses: docker/build-push-action@v4
         with:
-           context: .
-           push: true
-           tags: |
-             ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
-             ghcr.io/ekane5bong5/solar-system:${{ github.sha }}
+          context: .
+          push: true
+          tags: |
+            ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+            ghcr.io/ekane5bong5/solar-system:${{ github.sha }}
